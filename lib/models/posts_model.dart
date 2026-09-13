@@ -1,21 +1,25 @@
-  class PostModel {
+class PostModel {
   final int id;
-  final int categoryId;
+  final int? categoryId;
   final String? categoryName;
   final String title;
   final String content;
-  final String? image;
-  final String author;
+  final String? picture;
+  final AuthorModel? author;
+  final int? likeCount;
+  final int? commentCount;
   final String? createdAt;
 
   PostModel({
     required this.id,
-    required this.categoryId,
+    this.categoryId,
     this.categoryName,
     required this.title,
     required this.content,
-    this.image,
-    required this.author,
+    this.picture,
+    this.author,
+    this.likeCount,
+    this.commentCount,
     this.createdAt,
   });
 
@@ -26,20 +30,27 @@
       categoryName: json['categoryName'],
       title: json['title'],
       content: json['content'],
-      image: json['image'],
-      author: json['author'] ?? 'Anonim',
+      picture: json['picture'],
+      author: json['author'] != null ? AuthorModel.fromJson(json['author']) : null,
+      likeCount: json['likeCount'] ?? 0,
+      commentCount: json['commentCount'] ?? 0,
       createdAt: json['createdAt'],
     );
   }
+}
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'categoryId': categoryId,
-      'title': title,
-      'content': content,
-      'image': image,
-      'author': author,
-    };
+class AuthorModel {
+  final int? id;
+  final String? name;
+  final String? picture;
+
+  AuthorModel({this.id, this.name, this.picture});
+
+  factory AuthorModel.fromJson(Map<String, dynamic> json) {
+    return AuthorModel(
+      id: json['id'],
+      name: json['name'],
+      picture: json['picture'],
+    );
   }
 }
