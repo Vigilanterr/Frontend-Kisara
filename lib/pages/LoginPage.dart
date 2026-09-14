@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/services/api.dart';
 import 'package:frontend/pages/RegisterPage.dart';
+import 'package:frontend/pages/MainNavigation.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -37,6 +38,10 @@ class _LoginPageState extends State<LoginPage> {
 
       if (result != null && mounted) {
         _showMsg('Login berhasil');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainNavigation()),
+        );
       }
     } on ApiException catch (e) {
       _showMsg(e.message);
@@ -81,14 +86,6 @@ class _LoginPageState extends State<LoginPage> {
                               width: 120,
                             ),
                             const SizedBox(height: 12),
-                            Text(
-                              'Kisara',
-                              style: GoogleFonts.playfairDisplay(
-                                fontSize: 28,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
                           ],
                         ),
                       ),
