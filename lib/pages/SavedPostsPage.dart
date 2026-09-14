@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/app_theme.dart';
 import 'package:frontend/models/posts_model.dart';
 import 'package:frontend/services/api.dart';
@@ -40,24 +41,27 @@ class _SavedPostsPageState extends State<SavedPostsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(24, 20, 24, 0),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
             child: Text(
               'Tersimpan',
-              style: TextStyle(
+              style: GoogleFonts.playfairDisplay(
                 fontSize: 28,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 color: AppTheme.textPrimary,
                 letterSpacing: -0.5,
               ),
             ),
           ),
           const SizedBox(height: 4),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(24, 0, 24, 0),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
             child: Text(
               'Artikel yang Anda simpan',
-              style: TextStyle(fontSize: 15, color: AppTheme.textSecondary),
+              style: GoogleFonts.inter(
+                fontSize: 15,
+                color: AppTheme.textSecondary,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -118,15 +122,15 @@ class _SavedPostsPageState extends State<SavedPostsPage> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppTheme.accentColor.withValues(alpha: 0.1),
+                color: AppTheme.primaryColor.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.bookmark_outline_rounded, size: 40, color: AppTheme.accentColor),
+              child: const Icon(Icons.bookmark_outline_rounded, size: 40, color: AppTheme.primaryColor),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Login untuk melihat artikel tersimpan',
-              style: TextStyle(
+              style: GoogleFonts.inter(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: AppTheme.textPrimary,
@@ -134,9 +138,12 @@ class _SavedPostsPageState extends State<SavedPostsPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Simpan artikel favorit Anda untuk dibaca nanti',
-              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: AppTheme.textSecondary,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 28),
@@ -150,7 +157,7 @@ class _SavedPostsPageState extends State<SavedPostsPage> {
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
               ),
-              child: const Text('Login'),
+              child: Text('Login', style: GoogleFonts.inter()),
             ),
           ],
         ),
@@ -175,19 +182,26 @@ class _SavedPostsPageState extends State<SavedPostsPage> {
               child: const Icon(Icons.wifi_off_rounded, size: 40, color: AppTheme.errorColor),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Gagal memuat artikel',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Periksa koneksi internet Anda',
-              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: AppTheme.textSecondary,
+              ),
             ),
             const SizedBox(height: 24),
             OutlinedButton(
               onPressed: _refresh,
-              child: const Text('Coba Lagi'),
+              child: Text('Coba Lagi', style: GoogleFonts.inter()),
             ),
           ],
         ),
@@ -210,18 +224,21 @@ class _SavedPostsPageState extends State<SavedPostsPage> {
             child: const Icon(Icons.bookmark_border_rounded, size: 40, color: AppTheme.textHint),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'Belum ada artikel tersimpan',
-            style: TextStyle(
+            style: GoogleFonts.inter(
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: AppTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Simpan artikel yang menarik untuk dibaca nanti',
-            style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: AppTheme.textSecondary,
+            ),
             textAlign: TextAlign.center,
           ),
         ],

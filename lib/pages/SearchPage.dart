@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/app_theme.dart';
 import 'package:frontend/models/posts_model.dart';
 import 'package:frontend/services/api.dart';
@@ -71,29 +72,34 @@ class _SearchPageState extends State<SearchPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Jelajahi',
-                  style: TextStyle(
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 28,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     color: AppTheme.textPrimary,
                     letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   'Temukan artikel yang menarik',
-                  style: TextStyle(fontSize: 15, color: AppTheme.textSecondary),
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 TextField(
                   controller: _searchController,
+                  style: GoogleFonts.inter(fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'Cari artikel...',
-                    prefixIcon: const Icon(Icons.search, color: AppTheme.textHint),
+                    hintStyle: GoogleFonts.inter(color: AppTheme.textHint),
+                    prefixIcon: const Icon(Icons.search, color: AppTheme.textHint, size: 22),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, color: AppTheme.textHint),
+                            icon: const Icon(Icons.clear, color: AppTheme.textHint, size: 20),
                             onPressed: _clearSearch,
                           )
                         : null,
@@ -128,24 +134,24 @@ class _SearchPageState extends State<SearchPage> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppTheme.accentColor.withValues(alpha: 0.1),
+              color: AppTheme.primaryColor.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.explore_outlined, size: 40, color: AppTheme.accentColor),
+            child: const Icon(Icons.explore_outlined, size: 40, color: AppTheme.primaryColor),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'Mulai mencari',
-            style: TextStyle(
+            style: GoogleFonts.inter(
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: AppTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Ketik kata kunci untuk menemukan artikel',
-            style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+            style: GoogleFonts.inter(fontSize: 14, color: AppTheme.textSecondary),
           ),
         ],
       ),
@@ -167,9 +173,9 @@ class _SearchPageState extends State<SearchPage> {
             child: const Icon(Icons.search_off_rounded, size: 40, color: AppTheme.textHint),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'Artikel tidak ditemukan',
-            style: TextStyle(
+            style: GoogleFonts.inter(
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: AppTheme.textPrimary,
@@ -178,7 +184,7 @@ class _SearchPageState extends State<SearchPage> {
           const SizedBox(height: 8),
           Text(
             'Coba kata kunci lain untuk "${_searchController.text}"',
-            style: const TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+            style: GoogleFonts.inter(fontSize: 14, color: AppTheme.textSecondary),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/app_theme.dart';
 import 'package:frontend/models/category_model.dart';
 import 'package:frontend/models/posts_model.dart';
@@ -129,7 +130,13 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit ? 'Edit Artikel' : 'Buat Artikel'),
+        title: Text(
+          isEdit ? 'Edit Artikel' : 'Buat Artikel',
+          style: GoogleFonts.inter(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         actions: [
           if (isEdit)
             IconButton(
@@ -151,9 +158,10 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
               child: ListView(
                 padding: const EdgeInsets.all(24),
                 children: [
-                  const Text(
+                  // Category
+                  Text(
                     'Kategori',
-                    style: TextStyle(
+                    style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppTheme.textPrimary,
@@ -162,9 +170,10 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
                   const SizedBox(height: 8),
                   DropdownButtonFormField<CategoryModel>(
                     initialValue: _selectedCategory,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Pilih kategori',
-                      prefixIcon: Icon(Icons.category_outlined),
+                      hintStyle: GoogleFonts.inter(color: AppTheme.textHint),
+                      prefixIcon: const Icon(Icons.category_outlined, size: 20),
                     ),
                     items: _categories.map((cat) {
                       return DropdownMenuItem(value: cat, child: Text(cat.name));
@@ -173,9 +182,11 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
                     validator: (val) => val == null ? 'Pilih kategori' : null,
                   ),
                   const SizedBox(height: 20),
-                  const Text(
+
+                  // Title
+                  Text(
                     'Judul',
-                    style: TextStyle(
+                    style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppTheme.textPrimary,
@@ -184,16 +195,20 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _titleController,
-                    decoration: const InputDecoration(
+                    style: GoogleFonts.inter(fontSize: 14),
+                    decoration: InputDecoration(
                       hintText: 'Judul artikel yang menarik',
-                      prefixIcon: Icon(Icons.title),
+                      hintStyle: GoogleFonts.inter(color: AppTheme.textHint),
+                      prefixIcon: const Icon(Icons.title, size: 20),
                     ),
                     validator: (val) => val == null || val.trim().isEmpty ? 'Judul wajib diisi' : null,
                   ),
                   const SizedBox(height: 20),
-                  const Text(
+
+                  // Content
+                  Text(
                     'Konten',
-                    style: TextStyle(
+                    style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppTheme.textPrimary,
@@ -202,17 +217,21 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _contentController,
-                    decoration: const InputDecoration(
+                    style: GoogleFonts.inter(fontSize: 14),
+                    decoration: InputDecoration(
                       hintText: 'Tuliskan cerita atau artikel Anda di sini...',
+                      hintStyle: GoogleFonts.inter(color: AppTheme.textHint),
                       alignLabelWithHint: true,
                     ),
                     maxLines: 12,
                     validator: (val) => val == null || val.trim().isEmpty ? 'Konten wajib diisi' : null,
                   ),
                   const SizedBox(height: 20),
-                  const Text(
+
+                  // Picture URL
+                  Text(
                     'URL Gambar (opsional)',
-                    style: TextStyle(
+                    style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppTheme.textPrimary,
@@ -221,12 +240,16 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _pictureController,
-                    decoration: const InputDecoration(
+                    style: GoogleFonts.inter(fontSize: 14),
+                    decoration: InputDecoration(
                       hintText: 'https://example.com/image.jpg',
-                      prefixIcon: Icon(Icons.image_outlined),
+                      hintStyle: GoogleFonts.inter(color: AppTheme.textHint),
+                      prefixIcon: const Icon(Icons.image_outlined, size: 20),
                     ),
                   ),
                   const SizedBox(height: 32),
+
+                  // Submit Button
                   if (!isEdit)
                     SizedBox(
                       width: double.infinity,
@@ -241,7 +264,10 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
                                 width: 20,
                                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                               )
-                            : const Text('Terbitkan Artikel', style: TextStyle(fontSize: 16)),
+                            : Text(
+                                'Terbitkan Artikel',
+                                style: GoogleFonts.inter(fontSize: 16),
+                              ),
                       ),
                     ),
                 ],

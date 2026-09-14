@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/app_theme.dart';
 import 'package:frontend/models/posts_model.dart';
 
@@ -16,15 +17,16 @@ class PostCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: AppTheme.cardColor,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: AppTheme.cardShadow,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Image
             if (post.picture != null && post.picture!.isNotEmpty)
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                 child: Image.network(
                   post.picture!,
                   width: double.infinity,
@@ -39,31 +41,36 @@ class PostCard extends StatelessWidget {
                   ),
                 ),
               ),
+
+            // Content
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Category
                   if (post.categoryName != null)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.accentColor.withValues(alpha: 0.12),
+                        color: AppTheme.primaryColor.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         post.categoryName!,
-                        style: const TextStyle(
+                        style: GoogleFonts.inter(
                           fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.accentColor,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.primaryColor,
                         ),
                       ),
                     ),
                   if (post.categoryName != null) const SizedBox(height: 10),
+
+                  // Title
                   Text(
                     post.title,
-                    style: const TextStyle(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.textPrimary,
@@ -73,10 +80,12 @@ class PostCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
+
+                  // Content Preview
                   Text(
                     post.content,
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
                       color: AppTheme.textSecondary,
                       height: 1.5,
                     ),
@@ -84,6 +93,8 @@ class PostCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 14),
+
+                  // Author & Stats
                   Row(
                     children: [
                       if (post.author != null) ...[
@@ -96,8 +107,8 @@ class PostCard extends StatelessWidget {
                           child: post.author!.picture == null
                               ? Text(
                                   (post.author!.name ?? 'A')[0].toUpperCase(),
-                                  style: const TextStyle(
-                                    fontSize: 12,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
                                     fontWeight: FontWeight.w700,
                                     color: AppTheme.primaryColor,
                                   ),
@@ -107,9 +118,9 @@ class PostCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           post.author!.name ?? 'Anonim',
-                          style: const TextStyle(
+                          style: GoogleFonts.inter(
                             fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             color: AppTheme.textPrimary,
                           ),
                         ),
@@ -119,14 +130,14 @@ class PostCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         '${post.likeCount ?? 0}',
-                        style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                        style: GoogleFonts.inter(fontSize: 12, color: AppTheme.textSecondary),
                       ),
                       const SizedBox(width: 12),
                       Icon(Icons.chat_bubble_outline, size: 16, color: AppTheme.textHint),
                       const SizedBox(width: 4),
                       Text(
                         '${post.commentCount ?? 0}',
-                        style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                        style: GoogleFonts.inter(fontSize: 12, color: AppTheme.textSecondary),
                       ),
                     ],
                   ),

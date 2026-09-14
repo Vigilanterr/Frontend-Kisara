@@ -7,7 +7,6 @@ import 'package:frontend/pages/SavedPostsPage.dart';
 import 'package:frontend/pages/ProfilePage.dart';
 import 'package:frontend/pages/LoginPage.dart';
 
-
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
 
@@ -56,7 +55,7 @@ class _MainNavigationState extends State<MainNavigation> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           height: 68,
-          indicatorColor: AppTheme.accentColor.withValues(alpha: 0.16),
+          indicatorColor: AppTheme.primaryColor.withValues(alpha: 0.12),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           destinations: const [
             NavigationDestination(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/app_theme.dart';
 import 'package:frontend/pages/MainNavigation.dart';
 
@@ -71,6 +72,7 @@ class _SplashPageState extends State<SplashPage>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Logo Circle
                   Container(
                     width: 88,
                     height: 88,
@@ -78,26 +80,28 @@ class _SplashPageState extends State<SplashPage>
                       color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(24),
                     ),
-                    child: const Icon(
-                      Icons.auto_stories_rounded,
-                      size: 44,
-                      color: Colors.white,
+                    child: Image.asset(
+                      'assets/logoKisara.png',
+                      width: 48,
+                      height: 48,
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
+                  // Title
+                  Text(
                     'Kisara',
-                    style: TextStyle(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 40,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: Colors.white,
                       letterSpacing: -0.5,
                     ),
                   ),
                   const SizedBox(height: 8),
+                  // Tagline
                   Text(
                     'Read. Create. Share.',
-                    style: TextStyle(
+                    style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: Colors.white.withValues(alpha: 0.8),

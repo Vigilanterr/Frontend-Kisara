@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/app_theme.dart';
 import 'package:frontend/models/posts_model.dart';
 import 'package:frontend/models/comment_model.dart';
@@ -240,34 +241,38 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Category
                         if (_post.categoryName != null)
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                             decoration: BoxDecoration(
-                              color: AppTheme.accentColor.withValues(alpha: 0.12),
+                              color: AppTheme.primaryColor.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               _post.categoryName!,
-                              style: const TextStyle(
+                              style: GoogleFonts.inter(
                                 fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.accentColor,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.primaryColor,
                               ),
                             ),
                           ),
                         const SizedBox(height: 16),
+
+                        // Title
                         Text(
                           _post.title,
-                          style: const TextStyle(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 26,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             color: AppTheme.textPrimary,
                             height: 1.3,
-                            letterSpacing: -0.3,
                           ),
                         ),
                         const SizedBox(height: 16),
+
+                        // Author
                         Row(
                           children: [
                             CircleAvatar(
@@ -279,7 +284,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                               child: _post.author?.picture == null
                                   ? Text(
                                       (_post.author?.name ?? 'A')[0].toUpperCase(),
-                                      style: const TextStyle(
+                                      style: GoogleFonts.inter(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w700,
                                         color: AppTheme.primaryColor,
@@ -294,7 +299,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                 children: [
                                   Text(
                                     _post.author?.name ?? 'Anonim',
-                                    style: const TextStyle(
+                                    style: GoogleFonts.inter(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
                                       color: AppTheme.textPrimary,
@@ -302,7 +307,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                   ),
                                   Text(
                                     _formatDate(_post.createdAt),
-                                    style: const TextStyle(fontSize: 12, color: AppTheme.textHint),
+                                    style: GoogleFonts.inter(fontSize: 12, color: AppTheme.textHint),
                                   ),
                                 ],
                               ),
@@ -310,6 +315,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
                           ],
                         ),
                         const SizedBox(height: 20),
+
+                        // Action Chips
                         Row(
                           children: [
                             _buildActionChip(
@@ -318,11 +325,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
                               color: _isLiked ? AppTheme.errorColor : AppTheme.textSecondary,
                               onTap: _toggleLike,
                             ),
-                            const SizedBox(width: 16),
+                            const SizedBox(width: 12),
                             _buildActionChip(
                               icon: _isSaved ? Icons.bookmark : Icons.bookmark_outline,
                               label: 'Simpan',
-                              color: _isSaved ? AppTheme.accentColor : AppTheme.textSecondary,
+                              color: _isSaved ? AppTheme.primaryColor : AppTheme.textSecondary,
                               onTap: _toggleSave,
                             ),
                           ],
@@ -330,9 +337,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
                         const SizedBox(height: 24),
                         const Divider(color: AppTheme.dividerColor),
                         const SizedBox(height: 24),
+
+                        // Content
                         Text(
                           _post.content,
-                          style: const TextStyle(
+                          style: GoogleFonts.inter(
                             fontSize: 16,
                             color: AppTheme.textPrimary,
                             height: 1.8,
@@ -341,6 +350,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
                         const SizedBox(height: 32),
                         const Divider(color: AppTheme.dividerColor),
                         const SizedBox(height: 24),
+
+                        // Comments
                         _buildCommentsSection(),
                       ],
                     ),
@@ -371,7 +382,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
             const SizedBox(width: 6),
             Text(
               label,
-              style: TextStyle(
+              style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: color,
@@ -387,9 +398,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Komentar',
-          style: TextStyle(
+          style: GoogleFonts.playfairDisplay(
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
@@ -408,9 +419,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
               );
             }
             if (snapshot.hasError) {
-              return const Text(
+              return Text(
                 'Gagal memuat komentar',
-                style: TextStyle(color: AppTheme.errorColor),
+                style: GoogleFonts.inter(color: AppTheme.errorColor),
               );
             }
             final comments = snapshot.data ?? [];
@@ -419,12 +430,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: AppTheme.dividerColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
                     'Belum ada komentar',
-                    style: TextStyle(color: AppTheme.textHint, fontSize: 14),
+                    style: GoogleFonts.inter(color: AppTheme.textHint, fontSize: 14),
                   ),
                 ),
               );
@@ -441,7 +452,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: AppTheme.cardColor,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                     boxShadow: AppTheme.cardShadow,
                   ),
                   child: Row(
@@ -456,7 +467,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                         child: comment.user?.picture == null
                             ? Text(
                                 userName[0].toUpperCase(),
-                                style: const TextStyle(
+                                style: GoogleFonts.inter(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: AppTheme.primaryColor,
@@ -473,7 +484,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                               children: [
                                 Text(
                                   userName,
-                                  style: const TextStyle(
+                                  style: GoogleFonts.inter(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
                                     color: AppTheme.textPrimary,
@@ -482,14 +493,14 @@ class _PostDetailPageState extends State<PostDetailPage> {
                                 const Spacer(),
                                 Text(
                                   _formatDate(comment.createdAt),
-                                  style: const TextStyle(fontSize: 11, color: AppTheme.textHint),
+                                  style: GoogleFonts.inter(fontSize: 11, color: AppTheme.textHint),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 6),
                             Text(
                               comment.content,
-                              style: const TextStyle(
+                              style: GoogleFonts.inter(
                                 fontSize: 14,
                                 color: AppTheme.textSecondary,
                                 height: 1.4,
@@ -516,15 +527,15 @@ class _PostDetailPageState extends State<PostDetailPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.cardColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Tambah Komentar',
-            style: TextStyle(
+            style: GoogleFonts.inter(
               fontSize: 15,
               fontWeight: FontWeight.w600,
               color: AppTheme.textPrimary,
@@ -534,8 +545,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
           TextField(
             controller: _commentController,
             maxLines: 3,
-            decoration: const InputDecoration(
+            style: GoogleFonts.inter(fontSize: 14),
+            decoration: InputDecoration(
               hintText: 'Tulis komentar Anda...',
+              hintStyle: GoogleFonts.inter(color: AppTheme.textHint),
             ),
           ),
           const SizedBox(height: 12),
@@ -546,7 +559,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
-              child: const Text('Kirim'),
+              child: Text('Kirim', style: GoogleFonts.inter()),
             ),
           ),
         ],

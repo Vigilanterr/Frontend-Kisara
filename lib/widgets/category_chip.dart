@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/app_theme.dart';
 
 class CategoryChip extends StatelessWidget {
@@ -30,7 +31,7 @@ class CategoryChip extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(
+          style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: isSelected ? Colors.white : AppTheme.textSecondary,

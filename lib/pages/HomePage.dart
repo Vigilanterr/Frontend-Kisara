@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/app_theme.dart';
 import 'package:frontend/models/posts_model.dart';
 import 'package:frontend/services/api.dart';
@@ -66,11 +67,11 @@ class _HomePageState extends State<HomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Kisara',
-                style: TextStyle(
+                style: GoogleFonts.playfairDisplay(
                   fontSize: 28,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   color: AppTheme.primaryColor,
                   letterSpacing: -0.5,
                 ),
@@ -82,14 +83,14 @@ class _HomePageState extends State<HomePage> {
                   color: AppTheme.primaryColor.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.person_outline, color: AppTheme.primaryColor),
+                child: const Icon(Icons.person_outline, color: AppTheme.primaryColor, size: 22),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          const Text(
+          Text(
             'Temukan cerita baru',
-            style: TextStyle(
+            style: GoogleFonts.playfairDisplay(
               fontSize: 24,
               fontWeight: FontWeight.w700,
               color: AppTheme.textPrimary,
@@ -97,9 +98,9 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Jelajahi artikel dari berbagai topik',
-            style: TextStyle(
+            style: GoogleFonts.inter(
               fontSize: 15,
               color: AppTheme.textSecondary,
             ),
@@ -173,10 +174,10 @@ class _HomePageState extends State<HomePage> {
           posts = posts.where((p) => p.categoryName == _selectedCategory).toList();
         }
 
-        if (posts.isEmpty) {
-          return const SliverFillRemaining(
+          if (posts.isEmpty) {
+          return SliverFillRemaining(
             hasScrollBody: false,
-            child: _buildEmptyState,
+            child: _buildEmptyState(),
           );
         }
 
@@ -201,7 +202,8 @@ class _HomePageState extends State<HomePage> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: AppTheme.cardColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         children: [
@@ -209,7 +211,7 @@ class _HomePageState extends State<HomePage> {
             height: 180,
             decoration: BoxDecoration(
               color: AppTheme.dividerColor.withValues(alpha: 0.4),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             ),
           ),
           Padding(
@@ -268,15 +270,22 @@ class _HomePageState extends State<HomePage> {
               child: const Icon(Icons.wifi_off_rounded, size: 40, color: AppTheme.errorColor),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Gagal memuat artikel',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Periksa koneksi internet dan pastikan server aktif',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: AppTheme.textSecondary,
+              ),
             ),
           ],
         ),
@@ -284,22 +293,39 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  static const _buildEmptyState = Center(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.article_outlined, size: 64, color: AppTheme.textHint),
-        SizedBox(height: 20),
-        Text(
-          'Belum ada artikel',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
-        ),
-        SizedBox(height: 8),
-        Text(
-          'Jadilah yang pertama membuat artikel',
-          style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
-        ),
-      ],
-    ),
-  );
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor.withValues(alpha: 0.08),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.article_outlined, size: 40, color: AppTheme.primaryColor),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Belum ada artikel',
+            style: GoogleFonts.inter(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Jadilah yang pertama membuat artikel',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

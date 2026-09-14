@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/app_theme.dart';
 import 'package:frontend/services/api.dart';
 import 'package:frontend/pages/LoginPage.dart';
@@ -63,19 +64,19 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             const SizedBox(height: 28),
-            const Text(
+            Text(
               'Selamat datang di Kisara',
-              style: TextStyle(
+              style: GoogleFonts.playfairDisplay(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
                 color: AppTheme.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Login untuk melihat profil, menyimpan,\ndan membuat artikel',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: GoogleFonts.inter(
                 fontSize: 14,
                 color: AppTheme.textSecondary,
                 height: 1.5,
@@ -89,7 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text('Login', style: TextStyle(fontSize: 16)),
+                child: Text('Login', style: GoogleFonts.inter(fontSize: 16)),
               ),
             ),
             const SizedBox(height: 12),
@@ -105,7 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text('Daftar Akun Baru', style: TextStyle(fontSize: 16)),
+                child: Text('Daftar Akun Baru', style: GoogleFonts.inter(fontSize: 16)),
               ),
             ),
           ],
@@ -137,19 +138,26 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: const Icon(Icons.error_outline, size: 40, color: AppTheme.errorColor),
                 ),
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   'Gagal memuat profil',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Terjadi kesalahan saat memuat data',
-                  style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 OutlinedButton(
                   onPressed: _logout,
-                  child: const Text('Logout'),
+                  child: Text('Logout', style: GoogleFonts.inter()),
                 ),
               ],
             ),
@@ -160,6 +168,7 @@ class _ProfilePageState extends State<ProfilePage> {
         return SingleChildScrollView(
           child: Column(
             children: [
+              // Profile Header
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.only(top: 60, bottom: 32),
@@ -178,7 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: user['picture'] == null
                           ? Text(
                               '${(user['name'] ?? 'U')[0]}'.toUpperCase(),
-                              style: const TextStyle(
+                              style: GoogleFonts.inter(
                                 fontSize: 36,
                                 color: Colors.white,
                                 fontWeight: FontWeight.w700,
@@ -189,7 +198,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 16),
                     Text(
                       user['name'] ?? 'User',
-                      style: const TextStyle(
+                      style: GoogleFonts.playfairDisplay(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -198,7 +207,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 4),
                     Text(
                       user['email'] ?? '',
-                      style: TextStyle(
+                      style: GoogleFonts.inter(
                         fontSize: 14,
                         color: Colors.white.withValues(alpha: 0.8),
                       ),
@@ -206,7 +215,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
               ),
+
               const SizedBox(height: 24),
+
+              // Info Cards
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
@@ -223,6 +235,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       value: user['email'] ?? '-',
                     ),
                     const SizedBox(height: 32),
+
+                    // Logout Button
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
@@ -249,7 +263,13 @@ class _ProfilePageState extends State<ProfilePage> {
                           );
                         },
                         icon: const Icon(Icons.logout, color: AppTheme.errorColor),
-                        label: const Text('Logout', style: TextStyle(color: AppTheme.errorColor, fontSize: 16)),
+                        label: Text(
+                          'Logout',
+                          style: GoogleFonts.inter(
+                            color: AppTheme.errorColor,
+                            fontSize: 16,
+                          ),
+                        ),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           side: const BorderSide(color: AppTheme.errorColor),
@@ -275,7 +295,7 @@ class _ProfilePageState extends State<ProfilePage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.cardColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: AppTheme.cardShadow,
       ),
       child: Row(
@@ -296,12 +316,15 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 12, color: AppTheme.textHint),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: AppTheme.textHint,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: GoogleFonts.inter(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.textPrimary,
