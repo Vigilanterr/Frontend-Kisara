@@ -1,30 +1,45 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:frontend/main.dart';
+import 'package:frontend/widgets/category_chip.dart';
+import 'package:frontend/models/posts_model.dart';
+import 'package:frontend/widgets/post_card.dart';
+import 'package:flutter/material.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('CategoryChip renders label', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CategoryChip(
+            label: 'Teknologi',
+            isSelected: false,
+            onTap: () {},
+          ),
+        ),
+      ),
+    );
+    expect(find.text('Teknologi'), findsOneWidget);
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  testWidgets('PostCard renders title and content', (WidgetTester tester) async {
+    final post = PostModel(
+      id: 1,
+      title: 'Judul Artikel',
+      content: 'Isi artikel',
+      categoryName: 'Teknologi',
+      likeCount: 5,
+      commentCount: 3,
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: PostCard(post: post, onTap: () {}),
+        ),
+      ),
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Judul Artikel'), findsOneWidget);
+    expect(find.text('Isi artikel'), findsOneWidget);
+    expect(find.text('Teknologi'), findsOneWidget);
   });
 }

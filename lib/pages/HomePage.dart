@@ -76,15 +76,6 @@ class _HomePageState extends State<HomePage> {
                   letterSpacing: -0.5,
                 ),
               ),
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.person_outline, color: AppTheme.primaryColor, size: 22),
-              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -172,7 +163,7 @@ class _HomePageState extends State<HomePage> {
 
         if (_selectedCategory != 'Semua') {
           posts = posts.where((p) => p.categoryName == _selectedCategory).toList();
-        }
+        } 
 
           if (posts.isEmpty) {
           return SliverFillRemaining(

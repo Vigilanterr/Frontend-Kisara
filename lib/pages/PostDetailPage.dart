@@ -5,7 +5,7 @@ import 'package:frontend/app_theme.dart';
 import 'package:frontend/models/posts_model.dart';
 import 'package:frontend/models/comment_model.dart';
 import 'package:frontend/services/api.dart';
-import 'package:frontend/pages/CreateEditPostPage.dart';
+import 'package:frontend/pages/EditPostPage.dart';
 
 class PostDetailPage extends StatefulWidget {
   final PostModel post;
@@ -178,7 +178,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   void _navigateToEdit() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CreateEditPostPage(post: _post)),
+      MaterialPageRoute(builder: (context) => EditPostPage(post: _post)),
     ).then((_) => _refreshPost());
   }
 

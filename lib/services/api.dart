@@ -138,18 +138,19 @@ class ApiService {
     required int categoryId,
     required String title,
     required String content,
-    String? picture,
+    String? imagePath,
   }) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/posts'),
-      headers: _headers,
-      body: jsonEncode({
-        'categoryId': categoryId,
-        'title': title,
-        'content': content,
-        'picture': picture,
-      }),
-    ).timeout(const Duration(seconds: 15));
+    var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/posts'));
+    if (_token != null) request.headers['Authorization'] = 'Bearer $_token';
+    request.fields['categoryId'] = categoryId.toString();
+    request.fields['title'] = title;
+    request.fields['content'] = content;
+    if (imagePath != null) {
+      request.files.add(await http.MultipartFile.fromPath('picture', imagePath));
+    }
+
+    final streamed = await request.send().timeout(const Duration(seconds: 30));
+    final response = await http.Response.fromStream(streamed);
 
     final body = _handleResponse(response);
     if (body == null) return null;
@@ -161,18 +162,22 @@ class ApiService {
     required int categoryId,
     required String title,
     required String content,
-    String? picture,
+    String? imagePath,
+    String? existingPicture,
   }) async {
-    final response = await http.put(
-      Uri.parse('$baseUrl/posts/$id'),
-      headers: _headers,
-      body: jsonEncode({
-        'categoryId': categoryId,
-        'title': title,
-        'content': content,
-        'picture': picture,
-      }),
-    ).timeout(const Duration(seconds: 15));
+    var request = http.MultipartRequest('PUT', Uri.parse('$baseUrl/posts/$id'));
+    if (_token != null) request.headers['Authorization'] = 'Bearer $_token';
+    request.fields['categoryId'] = categoryId.toString();
+    request.fields['title'] = title;
+    request.fields['content'] = content;
+    if (imagePath != null) {
+      request.files.add(await http.MultipartFile.fromPath('picture', imagePath));
+    } else if (existingPicture != null) {
+      request.fields['picture'] = existingPicture;
+    }
+
+    final streamed = await request.send().timeout(const Duration(seconds: 30));
+    final response = await http.Response.fromStream(streamed);
 
     final body = _handleResponse(response);
     if (body == null) return null;
@@ -280,6 +285,17 @@ class ApiService {
 
     final body = _handleResponse(response);
     return body != null ? body['data'] as Map<String, dynamic>? : null;
+  }
+
+  static Future<List<PostModel>> getUserPosts() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/users/me/posts'),
+      headers: _headers,
+    ).timeout(const Duration(seconds: 15));
+
+    final body = _handleResponse(response);
+    final List<dynamic> data = body['data'] ?? [];
+    return data.map((json) => PostModel.fromJson(json)).toList();
   }
 }
 

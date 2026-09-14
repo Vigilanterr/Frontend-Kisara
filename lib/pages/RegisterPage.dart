@@ -90,14 +90,6 @@ class _RegisterPageState extends State<RegisterPage> {
                               width: 120,
                             ),
                             const SizedBox(height: 12),
-                            Text(
-                              'Kisara',
-                              style: GoogleFonts.playfairDisplay(
-                                fontSize: 28,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
                           ],
                         ),
                       ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app_theme.dart';
 import 'package:frontend/pages/HomePage.dart';
-import 'package:frontend/pages/CreateEditPostPage.dart';
+import 'package:frontend/pages/CreatePostPage.dart';
 import 'package:frontend/pages/SearchPage.dart';
 import 'package:frontend/pages/SavedPostsPage.dart';
 import 'package:frontend/pages/ProfilePage.dart';
@@ -33,7 +33,7 @@ class _MainNavigationState extends State<MainNavigation> {
         children: [
           const HomePage(),
           const SearchPage(),
-          const CreateEditPostPage(),
+          const CreatePostPage(),
           const SavedPostsPage(),
           ProfilePage(onLoginRequired: _openLogin),
         ],

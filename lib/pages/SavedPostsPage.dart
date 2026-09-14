@@ -455,7 +455,7 @@ class _SavedPostCard extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.bookmark_remove, size: 16, color: AppTheme.errorColor),
+                              const Icon(Icons.delete, size: 16, color: AppTheme.errorColor),
                               const SizedBox(width: 4),
                               Text(
                                 'Hapus',
