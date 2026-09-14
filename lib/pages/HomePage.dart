@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/app_theme.dart';
 import 'package:frontend/models/posts_model.dart';
 import 'package:frontend/services/api.dart';
 import 'package:frontend/pages/PostDetailPage.dart';
+import 'package:frontend/widgets/post_card.dart';
+import 'package:frontend/widgets/category_chip.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,263 +15,291 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<List<PostModel>> _postsFuture;
+  late Future<List<dynamic>> _categoriesFuture;
+  String _selectedCategory = 'Semua';
 
   @override
   void initState() {
     super.initState();
     _postsFuture = ApiService.getPosts();
+    _categoriesFuture = ApiService.getCategories();
   }
 
   Future<void> _refresh() async {
     setState(() {
       _postsFuture = ApiService.getPosts();
+      _categoriesFuture = ApiService.getCategories();
     });
   }
 
   void _navigateToDetail(PostModel post) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => PostDetailPage(post: post),
-      ),
+      MaterialPageRoute(builder: (context) => PostDetailPage(post: post)),
     ).then((_) => _refresh());
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Artikel')),
-      body: RefreshIndicator(
+    return SafeArea(
+      child: RefreshIndicator(
         onRefresh: _refresh,
-        child: FutureBuilder<List<PostModel>>(
-          future: _postsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return ListView.builder(
-                padding: const EdgeInsets.all(12),
-                itemCount: 6,
-                itemBuilder: (context, index) => _buildPostSkeleton(),
-              );
-            }
-
-            if (snapshot.hasError) {
-              final error = snapshot.error;
-              final isNetwork = error is ApiException &&
-                  (error.toString().contains('SocketException') ||
-                   error.toString().contains('Network error') ||
-                   error.statusCode == null);
-              return ListView(
-                children: [
-                  const SizedBox(height: 100),
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          isNetwork ? Icons.wifi_off : Icons.error_outline,
-                          size: 64,
-                          color: Colors.grey[400],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          isNetwork
-                              ? 'Tidak dapat terhubung ke server'
-                              : 'Gagal memuat artikel',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          isNetwork
-                              ? 'Periksa koneksi internet dan pastikan server aktif'
-                              : error.toString(),
-                          style: TextStyle(color: Colors.grey[600]),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: _refresh,
-                          icon: const Icon(Icons.refresh),
-                          label: const Text('Coba Lagi'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            }
-
-            final posts = snapshot.data ?? [];
-
-            if (posts.isEmpty) {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.article_outlined, size: 64, color: Colors.grey),
-                    SizedBox(height: 16),
-                    Text('Belum ada artikel', style: TextStyle(fontSize: 18, color: Colors.grey)),
-                    SizedBox(height: 8),
-                    Text('Tambahkan artikel pertama Anda', style: TextStyle(color: Colors.grey)),
-                  ],
-                ),
-              );
-            }
-
-            return ListView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: posts.length,
-              itemBuilder: (context, index) {
-                final post = posts[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: InkWell(
-                    onTap: () => _navigateToDetail(post),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          post.picture != null && post.picture!.isNotEmpty
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    post.picture!,
-                                    width: 80,
-                                    height: 80,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) =>
-                                        Container(
-                                      width: 80,
-                                      height: 80,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: const Icon(Icons.image_not_supported, color: Colors.grey),
-                                    ),
-                                  ),
-                                )
-                              : Container(
-                                  width: 80,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Icon(Icons.article, color: Colors.grey),
-                                ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  post.title,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  post.content,
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(color: Colors.grey[700]),
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    if (post.categoryName != null)
-                                      Chip(
-                                        label: Text(post.categoryName!),
-                                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                        visualDensity: VisualDensity.compact,
-                                      ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'oleh ${post.author?.name ?? 'Anonim'}',
-                                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                                    ),
-                                    const Spacer(),
-                                    Icon(Icons.favorite_border, size: 16, color: Colors.grey[600]),
-                                    const SizedBox(width: 2),
-                                    Text('${post.likeCount ?? 0}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                                    const SizedBox(width: 8),
-                                    Icon(Icons.comment_outlined, size: 16, color: Colors.grey[600]),
-                                    const SizedBox(width: 2),
-                                    Text('${post.commentCount ?? 0}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
+        color: AppTheme.primaryColor,
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(child: _buildHeader()),
+            SliverToBoxAdapter(child: _buildCategories()),
+            SliverToBoxAdapter(child: const SizedBox(height: 8)),
+            _buildPostsList(),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildPostSkeleton() {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Kisara',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.primaryColor,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.person_outline, color: AppTheme.primaryColor),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Temukan cerita baru',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+              letterSpacing: -0.3,
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Jelajahi artikel dari berbagai topik',
+            style: TextStyle(
+              fontSize: 15,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategories() {
+    return FutureBuilder<List<dynamic>>(
+      future: _categoriesFuture,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
+
+        final categories = snapshot.data!;
+        return Container(
+          height: 52,
+          margin: const EdgeInsets.only(top: 20),
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            children: [
+              CategoryChip(
+                label: 'Semua',
+                isSelected: _selectedCategory == 'Semua',
+                onTap: () => setState(() => _selectedCategory = 'Semua'),
+              ),
+              const SizedBox(width: 8),
+              ...categories.map((cat) => Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: CategoryChip(
+                  label: cat.name,
+                  isSelected: _selectedCategory == cat.name,
+                  onTap: () => setState(() => _selectedCategory = cat.name),
+                ),
+              )),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPostsList() {
+    return FutureBuilder<List<PostModel>>(
+      future: _postsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return SliverPadding(
+            padding: const EdgeInsets.all(24),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _buildSkeleton(),
+                childCount: 4,
+              ),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return SliverFillRemaining(
+            hasScrollBody: false,
+            child: _buildErrorState(snapshot.error),
+          );
+        }
+
+        var posts = snapshot.data ?? [];
+
+        if (_selectedCategory != 'Semua') {
+          posts = posts.where((p) => p.categoryName == _selectedCategory).toList();
+        }
+
+        if (posts.isEmpty) {
+          return const SliverFillRemaining(
+            hasScrollBody: false,
+            child: _buildEmptyState,
+          );
+        }
+
+        return SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => PostCard(
+                post: posts[index],
+                onTap: () => _navigateToDetail(posts[index]),
+              ),
+              childCount: posts.length,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSkeleton() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          Container(
+            height: 180,
+            decoration: BoxDecoration(
+              color: AppTheme.dividerColor.withValues(alpha: 0.4),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 14,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: AppTheme.dividerColor.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  height: 18,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AppTheme.dividerColor.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 14,
+                  width: 200,
+                  decoration: BoxDecoration(
+                    color: AppTheme.dividerColor.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildErrorState(Object? error) {
+    return Center(
       child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(8),
+                color: AppTheme.errorColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
               ),
+              child: const Icon(Icons.wifi_off_rounded, size: 40, color: AppTheme.errorColor),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 16,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    height: 12,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    height: 12,
-                    width: 150,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ],
-              ),
+            const SizedBox(height: 24),
+            const Text(
+              'Gagal memuat artikel',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Periksa koneksi internet dan pastikan server aktif',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
             ),
           ],
         ),
       ),
     );
   }
+
+  static const _buildEmptyState = Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.article_outlined, size: 64, color: AppTheme.textHint),
+        SizedBox(height: 20),
+        Text(
+          'Belum ada artikel',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Jadilah yang pertama membuat artikel',
+          style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+        ),
+      ],
+    ),
+  );
 }

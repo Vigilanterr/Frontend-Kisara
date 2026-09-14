@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/app_theme.dart';
 import 'package:frontend/models/posts_model.dart';
 import 'package:frontend/services/api.dart';
 import 'package:frontend/pages/PostDetailPage.dart';
+import 'package:frontend/widgets/post_card.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -27,7 +29,13 @@ class _SearchPageState extends State<SearchPage> {
 
     try {
       final results = await ApiService.searchPosts(query);
-      setState(() => _results = results);
+      if (mounted) setState(() => _results = results);
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message)),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -39,6 +47,14 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() {
+      _results = [];
+      _hasSearched = false;
+    });
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -47,118 +63,144 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: TextField(
-          controller: _searchController,
-          decoration: InputDecoration(
-            hintText: 'Cari artikel...',
-            border: InputBorder.none,
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.clear),
-              onPressed: () {
-                _searchController.clear();
-                setState(() {
-                  _results = [];
-                  _hasSearched = false;
-                });
-              },
+    return SafeArea(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Jelajahi',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Temukan artikel yang menarik',
+                  style: TextStyle(fontSize: 15, color: AppTheme.textSecondary),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Cari artikel...',
+                    prefixIcon: const Icon(Icons.search, color: AppTheme.textHint),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, color: AppTheme.textHint),
+                            onPressed: _clearSearch,
+                          )
+                        : null,
+                  ),
+                  onSubmitted: (_) => _search(),
+                  onChanged: (val) => setState(() {}),
+                ),
+              ],
             ),
           ),
-          onSubmitted: (_) => _search(),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: _search,
+          const SizedBox(height: 16),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : !_hasSearched
+                    ? _buildInitialState()
+                    : _results.isEmpty
+                        ? _buildEmptyState()
+                        : _buildResults(),
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : !_hasSearched
-              ? const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.search, size: 64, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text('Ketik untuk mencari artikel', style: TextStyle(color: Colors.grey)),
-                    ],
-                  ),
-                )
-              : _results.isEmpty
-                  ? const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.search_off, size: 64, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text('Artikel tidak ditemukan', style: TextStyle(color: Colors.grey)),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(12),
-                      itemCount: _results.length,
-                      itemBuilder: (context, index) {
-                        final post = _results[index];
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          child: ListTile(
-                            leading: post.picture != null && post.picture!.isNotEmpty
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      post.picture!,
-                                      width: 50,
-                                      height: 50,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) =>
-                                          Container(
-                                        width: 50,
-                                        height: 50,
-                                        color: Colors.grey[200],
-                                        child: const Icon(Icons.article, color: Colors.grey),
-                                      ),
-                                    ),
-                                  )
-                                : Container(
-                                    width: 50,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(Icons.article, color: Colors.grey),
-                                  ),
-                            title: Text(
-                              post.title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Text(
-                              post.content,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            trailing: Text(
-                              'oleh ${post.author?.name ?? 'Anonim'}',
-                              style: const TextStyle(fontSize: 12, color: Colors.grey),
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PostDetailPage(post: post),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    ),
+    );
+  }
+
+  Widget _buildInitialState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: AppTheme.accentColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.explore_outlined, size: 40, color: AppTheme.accentColor),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Mulai mencari',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Ketik kata kunci untuk menemukan artikel',
+            style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: AppTheme.textHint.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.search_off_rounded, size: 40, color: AppTheme.textHint),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Artikel tidak ditemukan',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Coba kata kunci lain untuk "${_searchController.text}"',
+            style: const TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResults() {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      itemCount: _results.length,
+      itemBuilder: (context, index) {
+        final post = _results[index];
+        return PostCard(
+          post: post,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PostDetailPage(post: post)),
+            );
+          },
+        );
+      },
     );
   }
 }

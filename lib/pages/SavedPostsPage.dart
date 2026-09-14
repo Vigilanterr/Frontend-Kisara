@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/app_theme.dart';
 import 'package:frontend/models/posts_model.dart';
 import 'package:frontend/services/api.dart';
 import 'package:frontend/pages/PostDetailPage.dart';
+import 'package:frontend/pages/LoginPage.dart';
+import 'package:frontend/widgets/post_card.dart';
 
 class SavedPostsPage extends StatefulWidget {
   const SavedPostsPage({super.key});
@@ -16,154 +19,212 @@ class _SavedPostsPageState extends State<SavedPostsPage> {
   @override
   void initState() {
     super.initState();
+    _loadSavedPosts();
+  }
+
+  void _loadSavedPosts() {
     _savedPostsFuture = ApiService.getSavedPosts();
   }
 
   Future<void> _refresh() async {
-    setState(() {
-      _savedPostsFuture = ApiService.getSavedPosts();
-    });
+    setState(() => _loadSavedPosts());
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Artikel Tersimpan')),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: FutureBuilder<List<PostModel>>(
-          future: _savedPostsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
+    if (ApiService.token == null) {
+      return _buildLoginPrompt();
+    }
 
-            if (snapshot.hasError) {
-              final error = snapshot.error;
-              final isNetwork = error is ApiException &&
-                  (error.toString().contains('SocketException') ||
-                   error.toString().contains('Network error') ||
-                   error.statusCode == null);
-              return ListView(
-                children: [
-                  const SizedBox(height: 100),
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          isNetwork ? Icons.wifi_off : Icons.error_outline,
-                          size: 64,
-                          color: Colors.grey[400],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          isNetwork
-                              ? 'Tidak dapat terhubung ke server'
-                              : 'Gagal memuat artikel tersimpan',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          isNetwork
-                              ? 'Periksa koneksi internet dan pastikan server aktif'
-                              : error.toString(),
-                          style: TextStyle(color: Colors.grey[600]),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: _refresh,
-                          icon: const Icon(Icons.refresh),
-                          label: const Text('Coba Lagi'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            }
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(24, 20, 24, 0),
+            child: Text(
+              'Tersimpan',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.textPrimary,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(24, 0, 24, 0),
+            child: Text(
+              'Artikel yang Anda simpan',
+              style: TextStyle(fontSize: 15, color: AppTheme.textSecondary),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _refresh,
+              color: AppTheme.primaryColor,
+              child: FutureBuilder<List<PostModel>>(
+                future: _savedPostsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-            final posts = snapshot.data ?? [];
+                  if (snapshot.hasError) {
+                    return _buildErrorState();
+                  }
 
-            if (posts.isEmpty) {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.bookmark_border, size: 64, color: Colors.grey),
-                    SizedBox(height: 16),
-                    Text('Belum ada artikel tersimpan', style: TextStyle(fontSize: 18, color: Colors.grey)),
-                    SizedBox(height: 8),
-                    Text('Simpan artikel yang menarik untuk dibaca nanti', style: TextStyle(color: Colors.grey)),
-                  ],
-                ),
-              );
-            }
+                  final posts = snapshot.data ?? [];
 
-            return ListView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: posts.length,
-              itemBuilder: (context, index) {
-                final post = posts[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: post.picture != null && post.picture!.isNotEmpty
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              post.picture!,
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
-                                width: 50,
-                                height: 50,
-                                color: Colors.grey[200],
-                                child: const Icon(Icons.article, color: Colors.grey),
-                              ),
-                            ),
-                          )
-                        : Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(Icons.article, color: Colors.grey),
-                          ),
-                    title: Text(
-                      post.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      post.content,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: Text(
-                      'oleh ${post.author?.name ?? 'Anonim'}',
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PostDetailPage(post: post),
-                        ),
+                  if (posts.isEmpty) {
+                    return _buildEmptyState();
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    itemCount: posts.length,
+                    itemBuilder: (context, index) {
+                      final post = posts[index];
+                      return PostCard(
+                        post: post,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => PostDetailPage(post: post)),
+                          ).then((_) => _refresh());
+                        },
                       );
                     },
-                  ),
-                );
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoginPrompt() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppTheme.accentColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.bookmark_outline_rounded, size: 40, color: AppTheme.accentColor),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Login untuk melihat artikel tersimpan',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Simpan artikel favorit Anda untuk dibaca nanti',
+              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 28),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                ).then((_) => setState(() {}));
               },
-            );
-          },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+              ),
+              child: const Text('Login'),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppTheme.errorColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.wifi_off_rounded, size: 40, color: AppTheme.errorColor),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Gagal memuat artikel',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Periksa koneksi internet Anda',
+              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+            ),
+            const SizedBox(height: 24),
+            OutlinedButton(
+              onPressed: _refresh,
+              child: const Text('Coba Lagi'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: AppTheme.textHint.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.bookmark_border_rounded, size: 40, color: AppTheme.textHint),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Belum ada artikel tersimpan',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Simpan artikel yang menarik untuk dibaca nanti',
+            style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
