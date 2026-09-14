@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
-import 'pages/MainNavigation.dart';
+import 'package:flutter/services.dart';
+import 'app_theme.dart';
+import 'pages/splash_page.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+  ));
   runApp(const MyApp());
 }
 
@@ -12,12 +19,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Blog App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 11, 32, 49)),
-        useMaterial3: true,
-      ),
-      home: const MainNavigation(),
+      title: 'Kisara',
+      theme: AppTheme.theme,
+      home: const SplashPage(),
     );
   }
 }

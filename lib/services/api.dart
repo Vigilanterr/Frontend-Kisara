@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/category_model.dart';
 import '../models/posts_model.dart';
+import '../models/comment_model.dart';
 
 class ApiException implements Exception {
   final String message;
@@ -282,41 +283,4 @@ class ApiService {
   }
 }
 
-class CommentModel {
-  final int id;
-  final String content;
-  final CommentUserModel? user;
-  final String? createdAt;
 
-  CommentModel({
-    required this.id,
-    required this.content,
-    this.user,
-    this.createdAt,
-  });
-
-  factory CommentModel.fromJson(Map<String, dynamic> json) {
-    return CommentModel(
-      id: json['id'],
-      content: json['content'],
-      user: json['user'] != null ? CommentUserModel.fromJson(json['user']) : null,
-      createdAt: json['createdAt'],
-    );
-  }
-}
-
-class CommentUserModel {
-  final int? id;
-  final String? name;
-  final String? picture;
-
-  CommentUserModel({this.id, this.name, this.picture});
-
-  factory CommentUserModel.fromJson(Map<String, dynamic> json) {
-    return CommentUserModel(
-      id: json['id'],
-      name: json['name'],
-      picture: json['picture'],
-    );
-  }
-}
