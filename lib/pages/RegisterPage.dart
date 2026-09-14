@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/app_theme.dart';
 import 'package:frontend/services/api.dart';
 import 'package:frontend/pages/LoginPage.dart';
 
@@ -15,9 +14,21 @@ class _RegisterPageState extends State<RegisterPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+  
   bool _isLoading = false;
   bool _obscurePassword = true;
+
+  // --- PALET WARNA SESUAI DESAIN ---
+  static const Color bgBlue = Color(0xFF4285F4);
+  static const Color textDarkBlue = Color(0xFF003399);
+  static const Color buttonBlue = Color(0xFF678FEA);
+  static const Color linkBlue = Color(0xFF4285F4);
+
+  void _showMsg(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
 
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
@@ -32,26 +43,16 @@ class _RegisterPageState extends State<RegisterPage> {
       );
 
       if (result != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registrasi berhasil, silakan login')),
-        );
+        _showMsg('Registrasi berhasil, silakan login');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );
       }
     } on ApiException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message)),
-        );
-      }
+      _showMsg(e.message);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal registrasi: $e')),
-        );
-      }
+      _showMsg('Gagal registrasi: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -62,164 +63,266 @@ class _RegisterPageState extends State<RegisterPage> {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  // --- STYLE INPUT FORM (Border Hitam Sesuai Desain) ---
+  InputDecoration _inputStyle(String hint, IconData icon) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+      prefixIcon: Icon(icon, color: Colors.black87),
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.black, width: 1.0),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.black, width: 1.0),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: bgBlue, width: 1.5),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 60),
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: AppTheme.accentColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Icon(Icons.person_add_outlined, color: AppTheme.accentColor, size: 28),
+      backgroundColor: bgBlue,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
               ),
-              const SizedBox(height: 32),
-              const Text(
-                'Buat akun baru',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.textPrimary,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Bergabung dengan Kisara dan mulai\nberbagi cerita Anda',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: AppTheme.textSecondary,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 40),
-              Form(
-                key: _formKey,
+              child: IntrinsicHeight(
                 child: Column(
                   children: [
-                    TextFormField(
-                      controller: _nameController,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
-                        hintText: 'Nama lengkap',
-                        prefixIcon: Icon(Icons.person_outline),
+                    // --- BAGIAN ATAS: LOGO KISARA (40% Layar) ---
+                    Container(
+                      height: constraints.maxHeight * 0.4,
+                      alignment: Alignment.center,
+                      child: SafeArea(
+                        bottom: false,
+                        child: Image.asset(
+                          'assets/logoKisara.png', // Pastikan path ini benar
+                          width: 140,
+                          // color: Colors.white, // Aktifkan jika logo asli berwarna gelap
+                        ),
                       ),
-                      validator: (val) {
-                        if (val == null || val.trim().isEmpty) return 'Nama wajib diisi';
-                        return null;
-                      },
                     ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        hintText: 'Email',
-                        prefixIcon: Icon(Icons.email_outlined),
-                      ),
-                      validator: (val) {
-                        if (val == null || val.trim().isEmpty) return 'Email wajib diisi';
-                        if (!val.contains('@')) return 'Email tidak valid';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        hintText: 'Password',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                            color: AppTheme.textHint,
+
+                    // --- BAGIAN BAWAH: KOTAK PUTIH (Sisa Layar) ---
+                    Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
                           ),
-                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                         ),
-                      ),
-                      validator: (val) {
-                        if (val == null || val.isEmpty) return 'Password wajib diisi';
-                        if (val.length < 6) return 'Password minimal 6 karakter';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _confirmPasswordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        hintText: 'Konfirmasi password',
-                        prefixIcon: Icon(Icons.lock_outline),
-                      ),
-                      validator: (val) {
-                        if (val == null || val.isEmpty) return 'Konfirmasi password wajib diisi';
-                        if (val != _passwordController.text) return 'Password tidak cocok';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 28),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _register,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // JUDUL CREATE YOUR ACCOUNT
+                                const Text(
+                                  'Create Your Account',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontFamily: 'serif',
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.bold,
+                                    color: textDarkBlue,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+
+                                // SUB-JUDUL JOIN KISARA
+                                const Text(
+                                  'Join Kisara and start sharing your content',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontFamily: 'serif',
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 28),
+
+                                // LABEL & INPUT USERNAME
+                                const Text(
+                                  'Username',
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.black87),
+                                ),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _nameController,
+                                  textCapitalization: TextCapitalization.words,
+                                  textInputAction: TextInputAction.next,
+                                  decoration: _inputStyle('John Susilo', Icons.person),
+                                  validator: (val) => (val == null || val.trim().isEmpty) ? 'Username wajib diisi' : null,
+                                ),
+                                const SizedBox(height: 16),
+
+                                // LABEL & INPUT EMAIL
+                                const Text(
+                                  'Email',
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.black87),
+                                ),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  decoration: _inputStyle('Example@gmail.com', Icons.email),
+                                  validator: (val) => (val == null || val.trim().isEmpty) ? 'Email wajib diisi' : (!val.contains('@')) ? 'Email tidak valid' : null,
+                                ),
+                                const SizedBox(height: 16),
+
+                                // LABEL & INPUT PASSWORD
+                                const Text(
+                                  'Password',
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.black87),
+                                ),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: _obscurePassword,
+                                  textInputAction: TextInputAction.done,
+                                  onFieldSubmitted: (_) {
+                                    if (!_isLoading) _register();
+                                  },
+                                  decoration: _inputStyle('••••••••', Icons.key_outlined).copyWith(
+                                    suffixIcon: IconButton(
+                                      icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, color: Colors.grey),
+                                      onPressed: () {
+                                        setState(() => _obscurePassword = !_obscurePassword);
+                                      },
+                                    ),
+                                  ),
+                                  validator: (val) => (val == null || val.isEmpty) ? 'Password wajib diisi' : (val.length < 6) ? 'Minimal 6 karakter' : null,
+                                ),
+                                const SizedBox(height: 28),
+
+                                // TOMBOL REGISTER (Desain persis dengan tombol Login di gambar)
+                                SizedBox(
+                                  height: 52,
+                                  child: ElevatedButton(
+                                    onPressed: _isLoading ? null : _register,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: buttonBlue,
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        side: const BorderSide(color: Colors.black, width: 1.0),
+                                      ),
+                                    ),
+                                    child: _isLoading
+                                        ? const SizedBox(
+                                            width: 21,
+                                            height: 21,
+                                            child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white),
+                                          )
+                                        : const Text(
+                                            'Register', // Diubah dari 'Login' agar masuk akal untuk pendaftaran
+                                            style: TextStyle(
+                                              fontFamily: 'serif',
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                                const SizedBox(height: 32),
+
+                                // BAGIAN OR SIGN IN WITH
+                                const Center(
+                                  child: Text(
+                                    'Or sign in with',
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+
+                                // ICON SOSIAL MEDIA
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {},
+                                      child: Image.asset('assets/logoGoogle.png', width: 42, height: 42),
+                                    ),
+                                    const SizedBox(width: 24),
+                                    GestureDetector(
+                                      onTap: () {},
+                                      child: Image.asset('assets/logoFacebook.png', width: 42, height: 42),
+                                    ),
+                                  ],
+                                ),
+
+                                // SPACER AGAR TEKS LOGIN TETAP DI BAWAH
+                                const Spacer(),
+
+                                // BAGIAN ALREADY HAVE AN ACCOUNT? LOGIN
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 10, top: 16),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Text(
+                                        "Already have an account? ",
+                                        style: TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.bold),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => const LoginPage()),
+                                          );
+                                        },
+                                        child: const Text(
+                                          'Login',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: linkBlue,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                              )
-                            : const Text('Daftar', style: TextStyle(fontSize: 16)),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Sudah punya akun? ',
-                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
-                      );
-                    },
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(
-                        color: AppTheme.accentColor,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
