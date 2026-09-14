@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/app_theme.dart';
@@ -8,6 +9,52 @@ class PostCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const PostCard({super.key, required this.post, this.onTap});
+
+  Widget _buildImage() {
+    final picture = post.picture;
+    if (picture == null || picture.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    if (picture.startsWith('http') || picture.startsWith('https')) {
+      return ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        child: Image.network(
+          picture,
+          width: double.infinity,
+          height: 200,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => _imageError(),
+        ),
+      );
+    }
+
+    try {
+      final bytes = base64Decode(picture);
+      return ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        child: Image.memory(
+          bytes,
+          width: double.infinity,
+          height: 200,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => _imageError(),
+        ),
+      );
+    } catch (_) {
+      return _imageError();
+    }
+  }
+
+  Widget _imageError() {
+    return Container(
+      height: 200,
+      color: AppTheme.dividerColor.withValues(alpha: 0.3),
+      child: const Center(
+        child: Icon(Icons.image_not_supported_outlined, size: 48, color: AppTheme.textHint),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,23 +71,7 @@ class PostCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Image
-            if (post.picture != null && post.picture!.isNotEmpty)
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                child: Image.network(
-                  post.picture!,
-                  width: double.infinity,
-                  height: 200,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    height: 200,
-                    color: AppTheme.dividerColor.withValues(alpha: 0.3),
-                    child: const Center(
-                      child: Icon(Icons.image_not_supported_outlined, size: 48, color: AppTheme.textHint),
-                    ),
-                  ),
-                ),
-              ),
+            _buildImage(),
 
             // Content
             Padding(

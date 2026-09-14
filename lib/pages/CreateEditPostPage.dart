@@ -1,5 +1,8 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:frontend/app_theme.dart';
 import 'package:frontend/models/category_model.dart';
 import 'package:frontend/models/posts_model.dart';
@@ -18,12 +21,15 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
-  final _pictureController = TextEditingController();
+  final _imagePicker = ImagePicker();
 
   List<CategoryModel> _categories = [];
   CategoryModel? _selectedCategory;
   bool _isLoading = false;
   bool _isLoadingCategories = true;
+
+  Uint8List? _imageBytes;
+  String? _existingPicture;
 
   @override
   void initState() {
@@ -32,7 +38,7 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
     if (widget.post != null) {
       _titleController.text = widget.post!.title;
       _contentController.text = widget.post!.content;
-      _pictureController.text = widget.post!.picture ?? '';
+      _existingPicture = widget.post!.picture;
     }
   }
 
@@ -61,6 +67,47 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
     }
   }
 
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1200,
+        maxHeight: 1200,
+        imageQuality: 85,
+      );
+      if (image != null) {
+        final bytes = await image.readAsBytes();
+        setState(() {
+          _imageBytes = bytes;
+          _existingPicture = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal memilih gambar: $e')),
+        );
+      }
+    }
+  }
+
+  void _removeImage() {
+    setState(() {
+      _imageBytes = null;
+      _existingPicture = null;
+    });
+  }
+
+  String? _getPictureValue() {
+    if (_imageBytes != null) {
+      return base64Encode(_imageBytes!);
+    }
+    if (_existingPicture != null && _existingPicture!.isNotEmpty) {
+      return _existingPicture;
+    }
+    return null;
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategory == null) {
@@ -73,6 +120,7 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
     setState(() => _isLoading = true);
 
     try {
+      final picture = _getPictureValue();
       bool success;
       if (widget.post != null) {
         final result = await ApiService.updatePost(
@@ -80,7 +128,7 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
           categoryId: _selectedCategory!.id,
           title: _titleController.text.trim(),
           content: _contentController.text.trim(),
-          picture: _pictureController.text.trim().isEmpty ? null : _pictureController.text.trim(),
+          picture: picture,
         );
         success = result != null;
       } else {
@@ -88,7 +136,7 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
           categoryId: _selectedCategory!.id,
           title: _titleController.text.trim(),
           content: _contentController.text.trim(),
-          picture: _pictureController.text.trim().isEmpty ? null : _pictureController.text.trim(),
+          picture: picture,
         );
         success = result != null;
       }
@@ -120,7 +168,6 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
   void dispose() {
     _titleController.dispose();
     _contentController.dispose();
-    _pictureController.dispose();
     super.dispose();
   }
 
@@ -223,14 +270,14 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
                       hintStyle: GoogleFonts.inter(color: AppTheme.textHint),
                       alignLabelWithHint: true,
                     ),
-                    maxLines: 12,
+                    maxLines: 10,
                     validator: (val) => val == null || val.trim().isEmpty ? 'Konten wajib diisi' : null,
                   ),
                   const SizedBox(height: 20),
 
-                  // Picture URL
+                  // Image Picker
                   Text(
-                    'URL Gambar (opsional)',
+                    'Gambar (opsional)',
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -238,41 +285,225 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _pictureController,
-                    style: GoogleFonts.inter(fontSize: 14),
-                    decoration: InputDecoration(
-                      hintText: 'https://example.com/image.jpg',
-                      hintStyle: GoogleFonts.inter(color: AppTheme.textHint),
-                      prefixIcon: const Icon(Icons.image_outlined, size: 20),
-                    ),
-                  ),
+                  _buildImageSection(),
                   const SizedBox(height: 32),
 
                   // Submit Button
-                  if (!isEdit)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _submit,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                              )
-                            : Text(
-                                'Terbitkan Artikel',
-                                style: GoogleFonts.inter(fontSize: 16),
-                              ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _submit,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : Text(
+                              isEdit ? 'Perbarui Artikel' : 'Terbitkan Artikel',
+                              style: GoogleFonts.inter(fontSize: 16),
+                            ),
                     ),
+                  ),
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _buildImageSection() {
+    // Show picked image preview
+    if (_imageBytes != null) {
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppTheme.dividerColor),
+        ),
+        child: Column(
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              child: Image.memory(
+                _imageBytes!,
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: AppTheme.successColor, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Gambar dipilih dari galeri',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: _removeImage,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppTheme.errorColor.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        'Hapus',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.errorColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Show existing picture from URL (edit mode)
+    if (_existingPicture != null && _existingPicture!.isNotEmpty) {
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppTheme.dividerColor),
+        ),
+        child: Column(
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              child: _existingPicture!.startsWith('http')
+                  ? Image.network(
+                      _existingPicture!,
+                      width: double.infinity,
+                      height: 200,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => _imagePlaceholder(),
+                    )
+                  : _existingPicture!.startsWith('data:image')
+                      ? Image.memory(
+                          base64Decode(_existingPicture!),
+                          width: double.infinity,
+                          height: 200,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => _imagePlaceholder(),
+                        )
+                      : _imagePlaceholder(),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  const Icon(Icons.link, color: AppTheme.primaryColor, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Gambar dari artikel',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: _removeImage,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppTheme.errorColor.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        'Hapus',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.errorColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Show pick image buttons
+    return GestureDetector(
+      onTap: _pickImage,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 32),
+        decoration: BoxDecoration(
+          color: AppTheme.primaryColor.withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppTheme.primaryColor.withValues(alpha: 0.2),
+            width: 1.5,
+            style: BorderStyle.solid,
+          ),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.add_photo_alternate_outlined,
+                size: 28,
+                color: AppTheme.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Tap untuk memilih gambar',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Galeri / File',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: AppTheme.textHint,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _imagePlaceholder() {
+    return Container(
+      height: 200,
+      color: AppTheme.dividerColor.withValues(alpha: 0.3),
+      child: const Center(
+        child: Icon(Icons.image_not_supported_outlined, size: 48, color: AppTheme.textHint),
+      ),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:frontend/app_theme.dart';
@@ -8,8 +9,9 @@ import 'package:frontend/pages/CreateEditPostPage.dart';
 
 class PostDetailPage extends StatefulWidget {
   final PostModel post;
+  final bool isSaved;
 
-  const PostDetailPage({super.key, required this.post});
+  const PostDetailPage({super.key, required this.post, this.isSaved = false});
 
   @override
   State<PostDetailPage> createState() => _PostDetailPageState();
@@ -20,7 +22,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   bool _isLoading = false;
   bool _isLiked = false;
   int _likeCount = 0;
-  bool _isSaved = false;
+  late bool _isSaved;
   int? _currentUserId;
   final _commentController = TextEditingController();
 
@@ -29,6 +31,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
     super.initState();
     _post = widget.post;
     _likeCount = _post.likeCount ?? 0;
+    _isSaved = widget.isSaved;
     _loadCurrentUser();
   }
 
@@ -196,6 +199,39 @@ class _PostDetailPageState extends State<PostDetailPage> {
     super.dispose();
   }
 
+  Widget _buildDetailImage(String picture) {
+    if (picture.startsWith('http') || picture.startsWith('https')) {
+      return Image.network(
+        picture,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: 300,
+        errorBuilder: (context, error, stackTrace) => _imageError(),
+      );
+    }
+    try {
+      final bytes = base64Decode(picture);
+      return Image.memory(
+        bytes,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: 300,
+        errorBuilder: (context, error, stackTrace) => _imageError(),
+      );
+    } catch (_) {
+      return _imageError();
+    }
+  }
+
+  Widget _imageError() {
+    return Container(
+      color: AppTheme.dividerColor.withValues(alpha: 0.3),
+      child: const Center(
+        child: Icon(Icons.image_not_supported_outlined, size: 48, color: AppTheme.textHint),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -210,16 +246,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                   foregroundColor: AppTheme.textPrimary,
                   flexibleSpace: _post.picture != null && _post.picture!.isNotEmpty
                       ? FlexibleSpaceBar(
-                          background: Image.network(
-                            _post.picture!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Container(
-                              color: AppTheme.dividerColor.withValues(alpha: 0.3),
-                              child: const Center(
-                                child: Icon(Icons.image_not_supported_outlined, size: 48, color: AppTheme.textHint),
-                              ),
-                            ),
-                          ),
+                          background: _buildDetailImage(_post.picture!),
                         )
                       : null,
                   actions: [
