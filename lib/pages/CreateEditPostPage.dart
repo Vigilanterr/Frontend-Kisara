@@ -71,11 +71,8 @@ class _CreateEditPostPageState extends State<CreateEditPostPage> {
     try {
       final XFile? image = await _imagePicker.pickImage(
         source: ImageSource.gallery,
-        maxWidth: 1200,
-        maxHeight: 1200,
-        imageQuality: 85,
       );
-      if (image != null) {
+      if (image != null && mounted) {
         final bytes = await image.readAsBytes();
         setState(() {
           _imageBytes = bytes;
